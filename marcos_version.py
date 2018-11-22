@@ -22,7 +22,7 @@ class v_queue: # vertices priority queue - a fila de prioridade de vértices, us
         def v_key(v):
             return v.key
         self.list.sort(key=v_key)
-    def find_from_id(self, id): # retorna um nodo, dado seu número (index)
+    def find_by_id(self, id): # retorna um nodo, dado seu número (index)
         for i in self.list:
             if(i.id == id):
                 return i
@@ -52,31 +52,47 @@ class mn_tree: # minimum spanning tree - a arvore geradora mínima em si
     def __init__(self, matrix): # é inicializado com uma matriz de adjacência
         self.matrix = matrix # matriz de adjacência
         self.V = v_queue() # lista de vértices - V(G)
+        self.limited = [] # lista de vértices limitados, com seus ids respectivos
+
         for i in range(matrix.size): # insere todos os vértices na lista de vértices
             self.V.insert(vertex(i))
+        for l in self.V:
+            if(l.id in self.matrix.limited):
+                self.limited.append(l)
 
     def prim(self): # gera a árvore geradora mínima usando o algoritmo de prim
+        self.connect_limited() # acha um pai não limitado para cada vértice limitado
         q = v_queue() # seja q uma fila vazia
-        self.V[0].key = 0 # escolhe o primeiro vértice da fila para ser a raíz
-        for i in self.V: # insere todos os vértices em q
-            q.insert(i)
+        self.choose_raiz() # escolhe um vértice não limitado para ser raíz
+        for i in self.V: # insere todos os vértices não limitados em q
+            if(not i in self.limited):
+                q.insert(i)
         while not q.is_empty():
             u = q.pop_min()
-            if(u.id in self.matrix.limited and u.key != 0): # se for limitado, não "faz filhos", mas pode ser filho de um nodo.
-                continue                                    # a não ser que seja a raíz, nesse caso, faz um filho apenas.
             for v in self.adjacents(u):
                 if(q.is_in(v) and self.f(u,v) < v.key):
                     v.pred = u
                     v.key = self.f(u,v)
                     q.sort()
-                    if(u.key == 0 and u.id in self.matrix.limited): # se for limitado e a raíz, só "faz" um filho
-                        break
 
     def adjacents(self, v): # retorna os nodos adjacentes a v
-        return [self.V.find_from_id(i) for i in range(len(self.matrix[v.id])) if self.matrix[v.id][i] != 0]
+        return [self.V.find_by_id(i) for i in range(len(self.matrix[v.id])) if self.matrix[v.id][i] != 0]
 
     def f(self, u, v): # retorna o valor da aresta que conecta u com v
         return self.matrix[u.id][v.id]
+
+    def choose_raiz(self): # escolhe um vértice não limitado para ser raíz (key = 0)
+        for v in self.V:
+            if(v not in self.limited):
+                v.key = 0
+                break
+
+    def connect_limited(self): # conecta todos os vértices limitados a um pai. (o menor valor de aresta possível)
+        for l in self.limited:
+            for v in self.adjacents(l):
+                if(self.f(l,v) < l.key and not v in self.limited):
+                    l.pred = v
+                    l.key = self.f(l,v)
 
     def total_cable_needed(self): # retorna a quantidade de cabo necessária
         sum = 0
@@ -85,21 +101,46 @@ class mn_tree: # minimum spanning tree - a arvore geradora mínima em si
         return sum
 
 
+# campuses_values = [] # lista que guarda os valores para printar de uma vez só no final
+#
+# N = int(input())
+# for i in range(N): # para cada campus
+#     D = int(input())
+#     am = adjacency_matrix(D)
+#     for j in range(D): # para cada dispositivo, lê uma linha de adjacencia
+#         am.append_line(input())
+#     L = int(input())
+#     if(L != 0): # se não tiver dispositivos limitados, não recebe-os
+#         am.set_limited_devices(input())
+#
+#     minimum_spanning_tree = mn_tree(am) # faz a matriz de adjacência
+#     minimum_spanning_tree.prim() # executa o algoritmo, gerando a árvore geradora mínima
+#     campuses_values.append(minimum_spanning_tree.total_cable_needed())
+#
+# for i in range(len(campuses_values)):
+#     print("Campus " + str(i+1) + ": " + str(campuses_values[i]))
+
+file = open("teste100a.txt", "r")
+out = open("out.txt", "w")
+
 campuses_values = [] # lista que guarda os valores para printar de uma vez só no final
 
-N = int(input())
+N = int(file.readline())
 for i in range(N): # para cada campus
-    D = int(input())
+    D = int(file.readline())
     am = adjacency_matrix(D)
     for j in range(D): # para cada dispositivo, lê uma linha de adjacencia
-        am.append_line(input())
-    L = int(input())
+        am.append_line(file.readline())
+    L = int(file.readline())
     if(L != 0): # se não tiver dispositivos limitados, não recebe-os
-        am.set_limited_devices(input())
+        am.set_limited_devices(file.readline())
 
     minimum_spanning_tree = mn_tree(am) # faz a matriz de adjacência
     minimum_spanning_tree.prim() # executa o algoritmo, gerando a árvore geradora mínima
     campuses_values.append(minimum_spanning_tree.total_cable_needed())
 
 for i in range(len(campuses_values)):
-    print("Campus " + str(i+1) + ": " + str(campuses_values[i]))
+    out.write("Campus " + str(i+1) + ": " + str(campuses_values[i]) + "\n")
+
+file.close()
+out.close()
