@@ -1,3 +1,5 @@
+# Este programa foi escrito em Python 3.
+
 class v_queue: # vertices priority queue - a fila de prioridade de vértices, usada na árvore geradora mínima
     def __init__(self):
         self.list = []
