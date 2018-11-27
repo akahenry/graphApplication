@@ -61,6 +61,8 @@ class mn_tree: # minimum spanning tree - a arvore geradora mínima em si
         for l in self.V:
             if(l.id in self.matrix.limited):
                 self.limited.append(l)
+        
+        self.prim() # executa o algoritmo, gerando a árvore geradora mínima
 
     def prim(self): # gera a árvore geradora mínima usando o algoritmo de prim
         self.connect_limited() # acha um pai não limitado para cada vértice limitado
@@ -103,46 +105,20 @@ class mn_tree: # minimum spanning tree - a arvore geradora mínima em si
         return sum
 
 
-# campuses_values = [] # lista que guarda os valores para printar de uma vez só no final
-#
-# N = int(input())
-# for i in range(N): # para cada campus
-#     D = int(input())
-#     am = adjacency_matrix(D)
-#     for j in range(D): # para cada dispositivo, lê uma linha de adjacencia
-#         am.append_line(input())
-#     L = int(input())
-#     if(L != 0): # se não tiver dispositivos limitados, não recebe-os
-#         am.set_limited_devices(input())
-#
-#     minimum_spanning_tree = mn_tree(am) # faz a matriz de adjacência
-#     minimum_spanning_tree.prim() # executa o algoritmo, gerando a árvore geradora mínima
-#     campuses_values.append(minimum_spanning_tree.total_cable_needed())
-#
-# for i in range(len(campuses_values)):
-#     print("Campus " + str(i+1) + ": " + str(campuses_values[i]))
+ campuses_values = [] # lista que guarda os valores para printar de uma vez só no final
 
-file = open("teste100a.txt", "r")
-out = open("out.txt", "w")
+ N = int(input())
+ for i in range(N): # para cada campus
+     D = int(input())
+     am = adjacency_matrix(D)
+     for j in range(D): # para cada dispositivo, lê uma linha de adjacencia
+         am.append_line(input())
+     L = int(input())
+     if(L != 0): # se não tiver dispositivos limitados, não recebe-os
+         am.set_limited_devices(input())
 
-campuses_values = [] # lista que guarda os valores para printar de uma vez só no final
+     minimum_spanning_tree = mn_tree(am) # faz a matriz de adjacência
+     campuses_values.append(minimum_spanning_tree.total_cable_needed())
 
-N = int(file.readline())
-for i in range(N): # para cada campus
-    D = int(file.readline())
-    am = adjacency_matrix(D)
-    for j in range(D): # para cada dispositivo, lê uma linha de adjacencia
-        am.append_line(file.readline())
-    L = int(file.readline())
-    if(L != 0): # se não tiver dispositivos limitados, não recebe-os
-        am.set_limited_devices(file.readline())
-
-    minimum_spanning_tree = mn_tree(am) # faz a matriz de adjacência
-    minimum_spanning_tree.prim() # executa o algoritmo, gerando a árvore geradora mínima
-    campuses_values.append(minimum_spanning_tree.total_cable_needed())
-
-for i in range(len(campuses_values)):
-    out.write("Campus " + str(i+1) + ": " + str(campuses_values[i]) + "\n")
-
-file.close()
-out.close()
+ for i in range(len(campuses_values)):
+     print("Campus " + str(i+1) + ": " + str(campuses_values[i]))
